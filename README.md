@@ -1,20 +1,37 @@
 # Interview Grill (Desktop)
 
-A desktop app that **stress-tests your resume projects** with structured interview drilling:
+A desktop app that turns interview prep into a **repeatable training loop**:
 
-- Project deep dive (why / tradeoffs / metrics / pitfalls)
-- CS fundamentals (OS / network / DB / JVM / concurrency)
-- System design (cache / rate limit / idempotency / MQ)
-- Algorithms (project-relevant + graded difficulty)
-- Coding exercises (JS/TS, Java, C++ planned)
+- One-click **Mock interview (15m)**: project deep dive -> backend fundamentals -> algorithm warmup
+- **Review report**: 5-dimension score + 3 actionable fixes + tomorrow practice plan
+- **Persistent history**: close/reopen without losing progress
+- Designed for **consistency**: 30-minute sessions, quick hints when stuck, spaced review (planned)
 
-## Key Features
+If you are preparing for **Tencent/ByteDance intern** (or any SWE intern), this helps you practice the two things that matter most:
 
-- Modes: continuous grilling / per-question practice / full mock interview
-- Intensity: gentle / normal / hell
-- Inputs: resume text, PDF, repo path, project templates (tags)
-- Outputs: Chinese summaries, score, and a replayable review report
-- Optional online mode: when you provide an LLM key, questions adapt to your exact projects
+- **Answer structure under pressure** (tradeoffs / metrics / risks)
+- **Progress you can measure** (scores, weak tags, weekly wins)
+
+## Why It Gets You Better (Not Just Busier)
+
+- **Low friction**: open -> start -> answer -> review -> done
+- **Realistic follow-ups**: forces you to defend decisions and quantify impact
+- **Actionable output**: every session ends with concrete next steps
+- **On-device by default**: no cloud required
+
+## What You Can Do Today
+
+- Run a **15-minute mock** interview session
+- Generate a **review report** (scores + improvements + tomorrow plan)
+- **Save** the report as JSON
+- Reopen the app and keep your session history
+
+## Roadmap (Near-Term)
+
+- Daily dashboard: Today tasks (2 problems + 1 mock + 1 mini-lesson)
+- Competition mode (Lanqiao): infinite practice + mistake tags + similar problems
+- 408 mini-lessons: tiny lessons with examples + memory cards + progress bars
+- Resume bullets: export a concise Chinese resume-ready summary from your sessions
 
 ## Dev
 
@@ -35,9 +52,9 @@ npm run start
 npm run build
 ```
 
-## Local Path
+## Repo Hygiene
 
-- `/Users/zhishixuebao/.openclaw/workspace/projects/interview-grill`
+Build outputs are ignored by git (do not commit `release/` or installers).
 
 ## License
 
