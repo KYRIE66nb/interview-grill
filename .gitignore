@@ -3,9 +3,12 @@ release/
 dist/
 
 # Electron mac outputs
+*.app
 *.dmg
 *.blockmap
 *.app/
+*.exe
+*.AppImage
 
 # node
 node_modules/

@@ -40,6 +40,19 @@ body{
   background: linear-gradient(180deg, rgba(15,22,34,.85), rgba(15,22,34,.45));
   backdrop-filter: blur(10px);
 }
+.topbarRight{display:flex; align-items:center; gap:10px}
+.statusPill{
+  max-width: 360px;
+  font-size:12px;
+  padding:7px 10px;
+  border-radius: 999px;
+  border:1px solid rgba(82,214,182,.45);
+  background: rgba(82,214,182,.14);
+  color:var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .brand{display:flex; align-items:center; gap:12px}
 .brandMark{
@@ -117,6 +130,7 @@ body{
   border-radius: 999px;
   padding:4px;
   gap:4px;
+  min-width: 0;
 }
 .segBtn{
   border:0;
@@ -126,6 +140,8 @@ body{
   border-radius: 999px;
   cursor:pointer;
   font-weight:650;
+  font-size:12px;
+  white-space: nowrap;
 }
 .segBtn.active{background: rgba(82,214,182,.18); color: var(--text)}
 
@@ -141,6 +157,7 @@ body{
 }
 
 .importBox{padding:12px 14px; display:flex; flex-direction:column; gap:8px; min-height:0}
+.importBox.compact{padding-top:6px}
 .importBox textarea{
   width:100%;
   resize: vertical;
@@ -181,6 +198,13 @@ body{
 .stage{min-width:0}
 
 .chat{display:flex; flex-direction:column; min-height:0; flex:1}
+.chatTools{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  padding:12px 14px 0;
+  flex-wrap: wrap;
+}
 .chatScroll{padding:14px; overflow:auto; display:flex; flex-direction:column; gap:10px; min-height:0}
 .msg{
   border:1px solid rgba(35,50,70,.7);
@@ -200,14 +224,78 @@ body{
 .cardKicker{font-size:11px; color: var(--muted)}
 .cardTitle{margin-top:6px; font-weight:760}
 .cardBody{margin-top:6px; color: rgba(232,240,255,.88); font-size:13px; line-height:1.25}
+.scoreRow{margin-top:8px}
+.scoreBadge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-family: var(--mono);
+  font-size:12px;
+  border:1px solid rgba(82,214,182,.5);
+  background: rgba(82,214,182,.16);
+  border-radius: 999px;
+  padding:4px 8px;
+}
+.overallScore{
+  font-family: var(--mono);
+  font-size:22px;
+  font-weight: 700;
+}
+.reviewActions{justify-content: flex-start}
+.plainList{
+  margin:0;
+  padding-left: 18px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  color: rgba(232,240,255,.9);
+  font-size:13px;
+}
+
+.modeOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(3,7,10,.72);
+  display: grid;
+  place-items: center;
+  z-index: 20;
+}
+.modeDialog{
+  width: min(680px, calc(100vw - 40px));
+  border-radius: 18px;
+  border:1px solid rgba(35,50,70,.8);
+  background: linear-gradient(180deg, rgba(15,22,34,.95), rgba(10,15,24,.95));
+  padding:16px;
+  box-shadow: var(--shadow);
+}
+.modeList{
+  margin-top: 14px;
+  display:grid;
+  gap:10px;
+}
+.modeItem{
+  border:1px solid rgba(35,50,70,.8);
+  border-radius: 14px;
+  background: rgba(17,28,43,.55);
+  color: var(--text);
+  text-align: left;
+  padding:12px;
+  cursor:pointer;
+}
+.modeItem:hover{border-color: rgba(122,168,255,.45)}
+.modeItem.active{border-color: rgba(82,214,182,.55); background: rgba(82,214,182,.12)}
+.modeItemTitle{font-weight:680; font-size:13px}
+.modeItemHint{margin-top:6px; color: var(--muted); font-size:12px}
 
 @media (max-width: 1180px){
   .main{grid-template-columns: 360px 1fr; grid-template-rows: auto auto;}
   .review{grid-column: 1 / -1}
+  .statusPill{display:none}
 }
 
 @media (max-width: 900px){
   .layout{grid-template-columns: 1fr}
   .rail{display:none}
   .main{grid-template-columns: 1fr;}
+  .topbarRight .btn{padding:8px 10px; font-size:12px}
 }
