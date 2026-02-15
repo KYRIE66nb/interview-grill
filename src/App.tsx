@@ -3,6 +3,9 @@ import './app.css'
 import type { DataSource, Mode, Session } from './types'
 import { loadSessions, saveSessions } from './storage'
 import { makeId, newSession } from './seed'
+import { extractProfileFromFreeform } from './core/profile'
+import { loadSeedBankFromDisk } from './core/questionBank'
+import { chooseNextQuestion, renderQuestionZh } from './core/engine'
 
 function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n))
@@ -102,17 +105,36 @@ export default function App() {
   function startDrill() {
     if (!active) return
     const now = Date.now()
-    const note =
+
+    const seedInput =
       active.dataSource === 'paste'
         ? active.resumeText.trim()
-          ? 'Resume loaded from paste (stub). Starting drill...'
-          : 'Paste resume first (stub).'
         : active.dataSource === 'pdf'
-          ? `PDF import placeholder: ${active.pdfPath ?? '(none)'} (stub).`
-          : `Repo import placeholder: ${active.repoPath ?? '(none)'} (stub).`
+          ? active.pdfPath?.trim() || ''
+          : active.repoPath?.trim() || ''
 
-    const msg = { id: makeId('m'), role: 'assistant' as const, text: note, ts: now }
-    updateActive({ messages: [...active.messages, msg], mode: 'drill' })
+    const profile = extractProfileFromFreeform(seedInput)
+    const project = profile.projects[0] ?? { name: '订单系统', tech: ['SpringBoot', 'MySQL'] }
+
+    const bank = loadSeedBankFromDisk(import.meta.url)
+    const asked = new Set(active.messages.filter((m) => m.role === 'assistant').map((m) => m.id))
+    const q = chooseNextQuestion(bank, project, 'drill', active.intensity, asked)
+
+    const intro = {
+      id: makeId('m'),
+      role: 'assistant' as const,
+      text: `开始拷打：目标项目 = ${project.name}；技术栈 = ${project.tech.join(' ')}。`,
+      ts: now,
+    }
+
+    const question = {
+      id: makeId('m'),
+      role: 'assistant' as const,
+      text: renderQuestionZh(q, project, active.intensity),
+      ts: now + 1,
+    }
+
+    updateActive({ messages: [...active.messages, intro, question], mode: 'drill' })
   }
 
   if (!active) return null
