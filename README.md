@@ -11,18 +11,33 @@ A desktop app that **stress-tests your resume projects** with structured intervi
 ## Key Features
 
 - Modes: continuous grilling / per-question practice / full mock interview
-- Intensity slider: gentle / normal / hell
+- Intensity: gentle / normal / hell
 - Inputs: resume text, PDF, repo path, project templates (tags)
 - Outputs: Chinese summaries, score, and a replayable review report
 - Optional online mode: when you provide an LLM key, questions adapt to your exact projects
 
+## Dev
+
+```bash
+npm install
+npm run dev
+```
+
+## Desktop Dev
+
+```bash
+npm run start
+```
+
+## Build Desktop
+
+```bash
+npm run build
+```
+
 ## Local Path
 
 - `/Users/zhishixuebao/.openclaw/workspace/projects/interview-grill`
-
-## Status
-
-Bootstrapping.
 
 ## License
 
