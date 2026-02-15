@@ -1,5 +1,7 @@
 # Interview Grill (Desktop)
 
+![Interview Grill demo](assets/demo.png)
+
 A desktop app that turns interview prep into a **repeatable training loop**:
 
 - One-click **Mock interview (15m)**: project deep dive -> backend fundamentals -> algorithm warmup
