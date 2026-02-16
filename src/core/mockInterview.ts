@@ -9,71 +9,81 @@ type BackendTopic = {
 
 const BACKEND_TOPICS: BackendTopic[] = [
   {
-    name: 'Idempotency for order APIs',
+    name: '订单接口幂等设计',
     prompt:
-      'Design idempotency for a create-order endpoint. Explain key generation, persistence strategy, concurrent duplicate handling, and TTL cleanup.',
+      '请为创建订单接口设计幂等方案，说明幂等键生成方式、落库策略、并发重复请求处理以及 TTL 清理策略。',
   },
   {
-    name: 'MySQL indexing and slow query diagnosis',
+    name: 'MySQL 索引与慢查询诊断',
     prompt:
-      'A critical query regressed from 20ms to 800ms. Walk through your diagnosis workflow and concrete index/query changes.',
+      '某关键查询从 20ms 退化到 800ms。请完整描述你的排查流程，以及具体索引/SQL 优化动作。',
   },
   {
-    name: 'Redis cache consistency',
+    name: 'Redis 缓存一致性',
     prompt:
-      'Describe a cache + DB consistency strategy for high-read traffic. Explain stale data risks, invalidation timing, and fallback behavior.',
+      '请设计高读流量下的缓存 + 数据库一致性方案，并说明脏数据风险、失效时机和兜底策略。',
   },
   {
-    name: 'Concurrency and lock contention',
+    name: '并发与锁竞争',
     prompt:
-      'Your service hits lock contention at peak traffic. Explain what metrics you check first and what architectural changes you would try.',
+      '服务在高峰期出现锁竞争，请说明你会先看哪些指标，以及会尝试哪些架构调整。',
   },
 ]
 
 const ALGO_WARMUPS: string[] = [
-  'Given an array, return the top-k frequent elements. Explain complexity and edge cases.',
-  'Implement LRU cache behavior and discuss tradeoffs between simplicity and throughput.',
-  'Find the shortest subarray whose sum is at least target. Explain why sliding window works (or does not).',
-  'Detect cycles in a directed graph and explain how you would debug wrong answers in an interview.',
+  '给定数组，返回出现频率最高的前 K 个元素，并说明复杂度与边界条件。',
+  '实现 LRU 缓存，并讨论“实现简单度”与“吞吐能力”的取舍。',
+  '求和至少为 target 的最短子数组，并解释滑动窗口为何可行（或不可行）。',
+  '判断有向图是否存在环，并说明面试中答错时你的排错思路。',
 ]
 
 function deriveProject(session: Session): { name: string; tech: string[] } {
+  const importedSource = session.contextImport?.source
   const seedInput =
-    session.dataSource === 'paste'
+    importedSource === 'paste'
       ? session.resumeText.trim()
-      : session.dataSource === 'pdf'
-        ? session.pdfPath?.trim() ?? ''
-        : session.repoPath?.trim() ?? ''
+      : importedSource === 'pdf'
+        ? session.contextImport?.path?.trim() || session.pdfPath?.trim() || ''
+        : importedSource === 'repo'
+          ? session.contextImport?.path?.trim() || session.repoPath?.trim() || ''
+          : session.dataSource === 'paste'
+            ? session.resumeText.trim()
+            : session.dataSource === 'pdf'
+              ? session.pdfPath?.trim() ?? ''
+              : session.repoPath?.trim() ?? ''
 
   const profile = extractProfileFromFreeform(seedInput)
-  return profile.projects[0] ?? { name: 'Order Service', tech: ['Spring Boot', 'MySQL'] }
+  return profile.projects[0] ?? { name: '订单系统', tech: ['Spring Boot', 'MySQL'] }
 }
 
 function buildStagePrompts(session: Session, backendTopicIndex: number): { stages: MockStage[]; backendTopic: string } {
   const project = deriveProject(session)
   const backendTopic = BACKEND_TOPICS[backendTopicIndex % BACKEND_TOPICS.length]
   const algoQuestion = ALGO_WARMUPS[(backendTopicIndex + 1) % ALGO_WARMUPS.length]
-  const projectTech = project.tech.length ? project.tech.join(', ') : 'n/a'
+  const projectTech = project.tech.length ? project.tech.join(', ') : '无'
+  const intensity = session.intensity
+  const stageTimeHint = intensity >= 8 ? '每题建议 45-60 秒回答。' : intensity <= 3 ? '每题可用 90-120 秒回答。' : '每题建议 60-90 秒回答。'
+  const followupHint = intensity >= 8 ? '会追问 2-3 轮并要求量化证据。' : intensity <= 3 ? '追问 1 轮，必要时可先给提示。' : '通常追问 1-2 轮。'
 
   return {
     stages: [
       {
         id: 'project-deep-dive',
-        title: 'Project Deep Dive',
+        title: '项目深挖',
         durationMinutes: 6,
-        prompt: `Pick your strongest project (${project.name}, stack: ${projectTech}). Cover business goal, architecture, your ownership, a tough failure, and measurable impact.`,
+        prompt: `请选择你最熟的项目（${project.name}，技术栈：${projectTech}），说明业务目标、架构设计、你的职责、一次棘手故障以及可量化结果。${stageTimeHint}${followupHint}`,
       },
       {
         id: 'backend-fundamentals',
-        title: 'Backend Fundamentals',
+        title: '后端基础',
         durationMinutes: 5,
-        prompt: backendTopic.prompt,
+        prompt: `${backendTopic.prompt}${stageTimeHint}${followupHint}`,
       },
       {
         id: 'algorithm-warmup',
-        title: 'Algorithm Warmup',
+        title: '算法热身',
         durationMinutes: 4,
-        prompt: algoQuestion,
+        prompt: `${algoQuestion}${stageTimeHint}`,
       },
     ],
     backendTopic: backendTopic.name,
@@ -97,17 +107,17 @@ export function createMockInterview(session: Session, backendTopicCursor: number
 
 export function renderMockIntro(mock: MockInterviewState): string {
   return [
-    'Mock Interview (Tencent/ByteDance intern) started.',
-    'Total: 15 minutes, 3 stages.',
-    `Flow: 1) ${mock.stages[0].title} (${mock.stages[0].durationMinutes}m) -> 2) ${mock.stages[1].title} (${mock.stages[1].durationMinutes}m, rotating topic: ${mock.backendTopic}) -> 3) ${mock.stages[2].title} (${mock.stages[2].durationMinutes}m).`,
-    'After each answer, press Cmd/Ctrl+Enter to continue.',
+    '模拟面试已开始（腾讯/字节风格）。',
+    '总时长：15 分钟，共 3 个阶段。',
+    `流程：1) ${mock.stages[0].title}（${mock.stages[0].durationMinutes} 分钟） -> 2) ${mock.stages[1].title}（${mock.stages[1].durationMinutes} 分钟，轮换主题：${mock.backendTopic}） -> 3) ${mock.stages[2].title}（${mock.stages[2].durationMinutes} 分钟）。`,
+    '每答完一轮，按 Cmd/Ctrl+Enter 继续。',
   ].join('\n')
 }
 
 export function renderStagePrompt(mock: MockInterviewState, stageIndex: number): string {
   const stage = mock.stages[stageIndex]
-  if (!stage) return 'No stage available.'
-  return [`[Stage ${stageIndex + 1}/${mock.stages.length}] ${stage.title} (${stage.durationMinutes}m)`, stage.prompt].join('\n')
+  if (!stage) return '当前无可用阶段。'
+  return [`[阶段 ${stageIndex + 1}/${mock.stages.length}] ${stage.title}（${stage.durationMinutes} 分钟）`, stage.prompt].join('\n')
 }
 
 export function createMockKickoffMessages(mock: MockInterviewState): Message[] {
@@ -128,7 +138,7 @@ export function advanceMockInterview(mock: MockInterviewState): { mock: MockInte
       message: {
         id: makeId('m'),
         role: 'assistant',
-        text: 'Mock interview complete. Generate review for scores, improvement items, and tomorrow practice plan.',
+        text: '模拟面试已完成。请生成复盘，查看评分、改进项和明日练习计划。',
         ts: now,
       },
       completed: true,
@@ -150,4 +160,3 @@ export function advanceMockInterview(mock: MockInterviewState): { mock: MockInte
 export function isMockRunning(session: Session): boolean {
   return Boolean(session.mode === 'mock' && session.mock?.active)
 }
-

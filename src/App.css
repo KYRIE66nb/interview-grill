@@ -27,6 +27,14 @@ body{
               radial-gradient(900px 500px at 105% 10%, rgba(122,168,255,.18), transparent 55%),
               linear-gradient(180deg, var(--bg0), var(--bg1));
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  line-height:1.5;
+}
+
+button,
+input,
+textarea{
+  font: inherit;
+  line-height:1.45;
 }
 
 #root{height:100%}
@@ -35,12 +43,14 @@ body{
 
 .topbar{
   display:flex; align-items:center; justify-content:space-between;
+  flex-wrap:wrap;
+  gap:10px;
   padding:14px 18px;
   border-bottom:1px solid rgba(35,50,70,.65);
   background: linear-gradient(180deg, rgba(15,22,34,.85), rgba(15,22,34,.45));
   backdrop-filter: blur(10px);
 }
-.topbarRight{display:flex; align-items:center; gap:10px}
+.topbarRight{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
 .statusPill{
   max-width: 360px;
   font-size:12px;
@@ -79,6 +89,8 @@ body{
 .railHeader{padding:16px 16px 10px}
 .railTitle{font-weight:720}
 .railHint{font-size:12px; color:var(--muted); margin-top:4px}
+.railFilter{margin-top:10px}
+.railFilter .segBtn{padding:6px 10px; font-size:11px}
 
 .sessionList{padding:10px; display:flex; flex-direction:column; gap:8px; overflow:auto}
 .sessionItem{
@@ -100,6 +112,7 @@ body{
 .railFooter{padding:12px; border-top:1px solid rgba(35,50,70,.55); display:flex; justify-content:flex-end}
 
 .main{padding:16px; display:grid; gap:14px; grid-template-columns: 380px 1fr 380px; min-height:0}
+.main.mainDaily{grid-template-columns: 380px 1fr}
 
 .panel{
   background: linear-gradient(180deg, rgba(15,22,34,.82), rgba(15,22,34,.56));
@@ -119,18 +132,36 @@ body{
 .panelTitle{font-weight:760}
 .panelSub{font-size:12px; color:var(--muted); margin-top:4px}
 
-.controls{gap:12px}
+.controls{
+  gap:12px;
+  overflow:auto;
+}
+
+.controls > *{
+  flex:0 0 auto;
+}
 
 .fieldRow{padding:12px 14px; display:flex; gap:12px; align-items:center; justify-content:space-between}
 
+.fieldRow{
+  flex-wrap:wrap;
+}
+
 .seg{
   display:flex;
+  flex-wrap:wrap;
+  align-items:center;
   background: rgba(7,10,15,.65);
   border:1px solid rgba(35,50,70,.65);
   border-radius: 999px;
   padding:4px;
   gap:4px;
   min-width: 0;
+  overflow:hidden;
+}
+
+.fieldRow > .seg{
+  flex: 1 1 220px;
 }
 .segBtn{
   border:0;
@@ -142,10 +173,33 @@ body{
   font-weight:650;
   font-size:12px;
   white-space: nowrap;
+  text-align:center;
 }
 .segBtn.active{background: rgba(82,214,182,.18); color: var(--text)}
 
-.intensity{display:flex; align-items:center; gap:10px}
+.fieldRow > .seg .segBtn{
+  flex: 1 1 84px;
+}
+
+.topSwitch .segBtn{
+  flex: 0 1 auto;
+}
+
+.intensity{
+  display:grid;
+  grid-template-columns: auto minmax(130px, 1fr) auto;
+  align-items:center;
+  gap:10px;
+  flex: 1 1 240px;
+  min-width: 0;
+}
+.intensity .label{
+  white-space: nowrap;
+}
+.intensity input[type="range"]{
+  width:100%;
+  min-width:130px;
+}
 .label{font-size:12px; color: var(--muted)}
 .pill{
   font-family: var(--mono);
@@ -170,7 +224,7 @@ body{
 }
 
 .inline{display:flex; gap:10px; align-items:center}
-.importBox input, .composer input{
+.importBox input, .importBox select, .composer input{
   width:100%;
   padding:10px 12px;
   border-radius: 14px;
@@ -179,6 +233,7 @@ body{
   color: var(--text);
   outline: none;
 }
+.importBox select{appearance:none}
 .hint{font-size:12px; color: var(--muted)}
 
 .btn{
@@ -195,7 +250,106 @@ body{
 .btn.danger{background: rgba(255,92,119,.12); border-color: rgba(255,92,119,.35)}
 .btn:disabled{opacity:.55; cursor:not-allowed}
 
+.fieldRow > .btn{
+  white-space: nowrap;
+  margin-left:auto;
+}
+
 .stage{min-width:0}
+
+.dailyTasks{
+  overflow-y:auto;
+  overflow-x:hidden;
+}
+.dailySummaryRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.taskList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.taskCard{
+  border:1px solid rgba(35,50,70,.65);
+  border-radius:14px;
+  background:rgba(7,10,15,.35);
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+.taskHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.taskCheck{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:13px;
+  font-weight:620;
+}
+.taskCheck input{
+  width:16px;
+  height:16px;
+}
+.taskTitle{
+  font-size:14px;
+  font-weight:680;
+}
+.taskLink{
+  color:var(--accent2);
+  font-size:12px;
+  text-decoration:none;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+.taskLink:hover{text-decoration:underline}
+.dailySummaryTextarea{
+  min-height: 132px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.reviewGrid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap:8px;
+}
+.dailyTraceList{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  max-height:160px;
+  overflow:auto;
+}
+.dailyTraceItem{
+  border:1px solid rgba(35,50,70,.55);
+  border-radius:10px;
+  padding:8px;
+  background:rgba(7,10,15,.28);
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+  min-width:0;
+}
+.dailyTraceRole{
+  font-size:11px;
+  color:var(--muted);
+  min-width:28px;
+}
+.dailyTraceText{
+  font-size:12px;
+  color:rgba(232,240,255,.88);
+  line-height:1.4;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
 
 .chat{display:flex; flex-direction:column; min-height:0; flex:1}
 .chatTools{
@@ -204,6 +358,9 @@ body{
   align-items:center;
   padding:12px 14px 0;
   flex-wrap: wrap;
+}
+.stageHint{
+  padding: 6px 14px 0;
 }
 .chatScroll{padding:14px; overflow:auto; display:flex; flex-direction:column; gap:10px; min-height:0}
 .msg{
@@ -287,15 +444,226 @@ body{
 .modeItemTitle{font-weight:680; font-size:13px}
 .modeItemHint{margin-top:6px; color: var(--muted); font-size:12px}
 
+.topSwitch{margin-right: 2px}
+
+.lessonPage{
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+}
+.lessonHero{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.lessonTitle{
+  font-size: 24px;
+  font-weight: 780;
+}
+.lessonSub{
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.lessonPanel{
+  background: linear-gradient(180deg, rgba(15,22,34,.82), rgba(15,22,34,.56));
+  border:1px solid rgba(35,50,70,.65);
+  border-radius: var(--radius2);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.lessonPanelHeader{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 12px;
+}
+.lessonActionRow{
+  display: flex;
+  gap: 10px;
+}
+.lessonTopicInput input{
+  width:100%;
+  padding:10px 12px;
+  border-radius: 14px;
+  border:1px solid rgba(35,50,70,.8);
+  background: rgba(7,10,15,.55);
+  color: var(--text);
+  outline: none;
+}
+.lessonCardGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+.lessonCard{
+  border:1px solid rgba(35,50,70,.65);
+  border-radius: 16px;
+  background: rgba(7,10,15,.35);
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.lessonExample{
+  border:1px solid rgba(35,50,70,.65);
+  border-radius: 16px;
+  background: rgba(7,10,15,.35);
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+.lessonExamplePrompt{
+  font-weight: 650;
+}
+.lessonExampleResult{
+  border-top: 1px solid rgba(35,50,70,.55);
+  padding-top: 10px;
+  font-weight: 620;
+}
+.lessonTwoCol{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.insightPage{
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: auto;
+}
+.insightHero{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.filterGrid{
+  display:grid;
+  gap:10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.inlineFilter{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--muted);
+  font-size:12px;
+}
+.inlineFilter input{
+  width:96px;
+  min-width:0;
+}
+.mistakeCard textarea{
+  min-height:72px;
+}
+.reviewReveal{
+  border:1px solid rgba(35,50,70,.55);
+  border-radius:12px;
+  padding:10px;
+  background:rgba(7,10,15,.24);
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.reviewRatingRow{
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap:8px;
+}
+.dashboardGrid{
+  display:grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap:10px;
+}
+.metricCard{
+  border:1px solid rgba(35,50,70,.65);
+  border-radius:14px;
+  background:rgba(7,10,15,.3);
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.lessonQuizItem{
+  margin-top: 8px;
+  border:1px solid rgba(35,50,70,.65);
+  border-radius: 12px;
+  background: rgba(7,10,15,.35);
+  padding: 10px;
+}
+.quizAnswerLabel{
+  margin-top: 8px;
+}
+
+.sessionTitle,
+.panelTitle,
+.panelSub,
+.hint,
+.msgText,
+.cardTitle,
+.cardBody,
+.modeItemTitle,
+.modeItemHint,
+.lessonTitle,
+.lessonSub,
+.lessonExamplePrompt,
+.lessonExampleResult,
+.plainList li{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+.msgText,
+.cardBody{
+  line-height:1.55;
+}
+
+.review{
+  overflow:auto;
+}
+
+.review .importBox,
+.review .cards{
+  flex:0 0 auto;
+}
+
 @media (max-width: 1180px){
   .main{grid-template-columns: 360px 1fr; grid-template-rows: auto auto;}
+  .main.mainDaily{grid-template-columns: 1fr}
   .review{grid-column: 1 / -1}
   .statusPill{display:none}
+  .lessonCardGrid{grid-template-columns: repeat(2, minmax(0, 1fr))}
 }
 
 @media (max-width: 900px){
   .layout{grid-template-columns: 1fr}
   .rail{display:none}
   .main{grid-template-columns: 1fr;}
+  .main.mainDaily{grid-template-columns: 1fr}
   .topbarRight .btn{padding:8px 10px; font-size:12px}
+  .topSwitch{width:100%}
+  .lessonHero{flex-direction:column; align-items:flex-start}
+  .lessonPanelHeader{flex-direction:column}
+  .lessonActionRow{width:100%}
+  .lessonActionRow .btn{flex:1}
+  .lessonCardGrid{grid-template-columns: 1fr}
+  .lessonTwoCol{grid-template-columns: 1fr}
+  .insightHero{flex-direction:column; align-items:flex-start}
+  .filterGrid{grid-template-columns: 1fr}
+  .dashboardGrid{grid-template-columns: 1fr}
+  .reviewRatingRow{grid-template-columns: repeat(2, minmax(0,1fr))}
+  .reviewGrid{grid-template-columns: 1fr}
 }

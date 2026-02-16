@@ -44,6 +44,13 @@ export function chooseNextQuestion(
 export function renderQuestionZh(q: BankQuestion, project: { name: string; tech: string[] } | null, intensity: number): string {
   const tier = intensityTier(intensity);
   const projectLine = project ? `项目：${project.name}（${project.tech.join(" ") || ""}）` : "";
+  const followupCount = tier === "gentle" ? 1 : tier === "normal" ? 2 : 3;
+  const pressureHint =
+    tier === "gentle"
+      ? "节奏说明：追问较少，优先讲清思路。"
+      : tier === "normal"
+        ? "节奏说明：追问 1-2 轮，重点看结构与指标。"
+        : "节奏说明：追问更深，默认需要证据和边界条件。";
 
   const opening =
     tier === "gentle"
@@ -55,8 +62,9 @@ export function renderQuestionZh(q: BankQuestion, project: { name: string; tech:
   return [
     projectLine,
     opening,
+    pressureHint,
     `问题（${q.id} / ${q.difficulty}）：${q.prompt}`,
-    q.followups.length ? `可能追问：${q.followups.slice(0, 2).join("；")}` : "",
+    q.followups.length ? `可能追问：${q.followups.slice(0, followupCount).join("；")}` : "",
   ]
     .filter(Boolean)
     .join("\n");

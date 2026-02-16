@@ -13,15 +13,15 @@ const KEYWORDS: Record<ReviewDimension, RegExp> = {
 
 const IMPROVEMENT_TEMPLATES: Record<ReviewDimension, string> = {
   structure:
-    'Use a strict answer frame: context -> decision -> tradeoff -> metric -> risk. Keep each answer under 90 seconds and close with one takeaway.',
+    '使用固定答题框架：背景 -> 决策 -> 取舍 -> 指标 -> 风险。单题控制在 90 秒内，并用一句结论收尾。',
   correctness:
-    'For each backend/algorithm claim, attach one concrete mechanism (data structure, API contract, lock strategy, or complexity proof).',
+    '每个后端/算法结论都补一个具体机制（数据结构、接口约束、锁策略或复杂度证明）。',
   tradeoffs:
-    'State at least two options before the final design decision and explain why the rejected option lost under interview constraints.',
+    '做最终方案前先给出至少两个可选方案，并解释在当前约束下为什么弃选另一个。',
   metrics:
-    'Add a measurable result in every answer: latency/QPS/error-rate baseline, expected improvement, and validation method.',
+    '每个回答至少给一个可量化结果：当前基线（延迟/QPS/错误率）、预期提升、验证方式。',
   risk:
-    'Always include one failure mode plus mitigation (fallback, alert threshold, rollback, or circuit breaker) before ending the answer.',
+    '回答结束前固定补一个故障场景和对应兜底（降级、告警阈值、回滚或熔断）。',
 }
 
 function clampScore(score: number): number {
@@ -41,12 +41,20 @@ function scoreDimension(text: string, dimension: ReviewDimension): { score: numb
   const score = clampScore(base + densityBoost)
 
   if (score >= 4) {
-    return { score, note: `Strong signal density (${hits} cues). Keep this level under pressure.` }
+    return { score, note: `信号密度较高（命中 ${hits} 个要点），请在压力追问下继续保持。` }
   }
   if (score === 3) {
-    return { score, note: `Moderate evidence (${hits} cues). Add one more concrete example per answer.` }
+    return { score, note: `证据强度中等（命中 ${hits} 个要点），每题再补一个具体例子会更稳。` }
   }
-  return { score, note: `Weak coverage (${hits} cues). Use a deliberate checklist before speaking.` }
+  return { score, note: `覆盖较弱（命中 ${hits} 个要点），回答前建议按清单逐项检查。` }
+}
+
+function dimensionLabel(dimension: ReviewDimension): string {
+  if (dimension === 'structure') return '结构化'
+  if (dimension === 'correctness') return '正确性'
+  if (dimension === 'tradeoffs') return '取舍权衡'
+  if (dimension === 'metrics') return '量化指标'
+  return '风险意识'
 }
 
 function buildTomorrowPlan(lowDimensions: ReviewDimension[]): string[] {
@@ -54,10 +62,10 @@ function buildTomorrowPlan(lowDimensions: ReviewDimension[]): string[] {
   const focusB = lowDimensions[1] ?? 'metrics'
 
   return [
-    `09:00-09:30: Record 3 answers focused on ${focusA}; enforce a 60-90 second structure.`,
-    `09:30-10:00: Do one backend fundamentals drill and verbalize tradeoffs + failure handling.`,
-    `19:00-19:30: Solve one warmup algorithm and explain complexity plus edge cases out loud.`,
-    `19:30-20:00: Replay today's transcript, rewrite weakest 2 answers, and rescore ${focusB}.`,
+    `09:00-09:30：围绕「${dimensionLabel(focusA)}」录 3 道口述题，每题控制在 60-90 秒。`,
+    '09:30-10:00：做 1 轮后端基础快练，强制说清取舍与故障处理。',
+    '19:00-19:30：做 1 题算法热身，并口头说明复杂度与边界条件。',
+    `19:30-20:00：回放今天对话，重写最弱的 2 题，并重点复评「${dimensionLabel(focusB)}」。`,
   ]
 }
 
@@ -94,8 +102,8 @@ export function generateReviewReport(session: Session): ReviewReport {
 
   const summary =
     userAnswers.length === 0
-      ? 'No user answers captured yet. Provide at least one round of responses to generate a meaningful review.'
-      : `Overall ${overall}/5. Best area: ${sortedLow[sortedLow.length - 1]}. Primary gap: ${weakest[0]}. Prioritize metrics and risk storytelling for Tencent/ByteDance-style follow-up pressure.`
+      ? '还没有采集到你的回答。请先完成至少一轮作答，再生成有意义的复盘报告。'
+      : `综合评分 ${overall}/5。优势维度：${dimensionLabel(sortedLow[sortedLow.length - 1])}；主要短板：${dimensionLabel(weakest[0])}。建议优先强化“量化指标 + 风险兜底”的表达。`
 
   return {
     generatedAt: Date.now(),
@@ -106,4 +114,3 @@ export function generateReviewReport(session: Session): ReviewReport {
     summary,
   }
 }
-

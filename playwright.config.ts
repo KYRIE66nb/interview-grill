@@ -9,7 +9,7 @@ export default defineConfig({
     headless: true,
   },
   webServer: {
-    command: 'npm run dev:web -- --strictPort --port 5173',
+    command: 'npm run dev:web -- --host 127.0.0.1 --strictPort --port 5173',
     url: 'http://127.0.0.1:5173',
     reuseExistingServer: true,
     timeout: 60_000,
